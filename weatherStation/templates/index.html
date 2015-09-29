@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        #first-bg {
+        background-image:url("http://www.walloza.com/tat_uploads/7075-download-beautiful-sky-full-hd-wallpaper.jpg");
+        background-color: #000000;
+        background-repeat:no-repeat;
+        background-size:auto;
+        background-attachment: scroll;
+        background-position:top;
+        }
+        #map-canvas {
+        width: 500px;
+        height: 400px;
+        }
+    </style>
+    <title>Weather Station</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script>
+    function refresh() {
+    $.ajax({
+        url: '{% url "data" %}',
+        success: function(data) {
+            $('#test').html(data);
+        }
+    });
+    setInterval("refresh()", 1000);
+}
+
+$(function(){
+    refresh();
+});
+    </script>
+    <!-- add google map api -->
+    <script type="text/javascript" 
+            src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyClzzwPtHJ0mTgTZ65DH0CVAO2muU5avHE"></script>
+    <script>
+        function initialize() {
+            var myLatlng = new google.maps.LatLng({{lat}}, {{lon}});
+            var mapOptions = {
+                center: myLatlng,
+                zoom: 17,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+            
+            var infowindow = new google.maps.InfoWindow();
+
+            // To add the marker to the map, use the 'map' property\
+            var marker = new google.maps.Marker({
+                position: myLatlng,
+                map: map,
+            });
+            
+            // Construct a new InfoWindow.
+         var infowindow = new google.maps.InfoWindow({
+             content: '{{lat}}, {{lon}}'
+         });
+
+            // Opens the InfoWindow when marker is clicked.
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+            });
+        }
+        
+        google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+    </head>
+    <body id="first-bg" onload="initialize()">
+        <div class="container-fluid">
+            <div class="row"">
+                    <div class="col-sm-2"><button type="button" class="btn btn-info btn-sm">About Us</button></div>
+                    <div class="col-sm-8"><center><h1>Weather Station</h1></center></div>
+            </div>
+            <div class="row"">
+                    <div class="col-sm-1"><h4></h4></div>
+                    <div class="col-sm-2"><h4>Temperature</h4></div>
+                    <div id="test" class="col-sm-3">{% include 'data.html' %}</div>           
+                    <div class="col-sm-6">
+                            <div id="map-canvas"></div>
+                    </div>
+            </div>
+        </div>
+    </body>
+</html>
